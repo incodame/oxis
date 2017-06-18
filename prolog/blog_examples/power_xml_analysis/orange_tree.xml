@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tree type="orange-tree">
+  <gps-position>46.8-7.15</gps-position>
+  <branch height="230">
+           <orientation>south-east</orientation>
+	         <FRUIT type="ORANGE" />
+	         <NEST  type="cuckoos-nest" />
+   </branch>
+   <branch height="310">
+           <orientation>north</orientation>
+           <FRUIT type="ORANGE" />
+           <NEST type="owl-nest" >
+                  <bird type="owl" age="2" />
+                  <bird type="cuckoo" age="6" />
+                  <bird type="owl" age="36" />
+           </NEST>
+           <FRUIT type="ORANGE" />
+   </branch>
+   <branch height="330">
+           <orientation>west</orientation>
+           <FRUIT type="ORANGE" />
+           <NEST type="sparrow-nest" >
+                  <bird type="sparrow" age="12" />
+                  <bird type="sparrow" age="28" />
+           </NEST>
+           <FRUIT type="ORANGE" />
+   </branch>
+</tree>

@@ -1,0 +1,5 @@
+<Node>
+    <Child name="Alpha"/>
+    <Child name="Beta"/>
+    <Child name="Charlie"/>
+</Node>

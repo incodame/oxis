@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tree type="orange-tree">
+  <gps-position>46.8-7.15</gps-position>
+  <branch height="230">
+           <orientation>south-east</orientation>
+	         <NEST  type="woodpecker-nest">
+                  <bird name="woody" age="10" />
+           </NEST>
+   </branch>
+   <branch x_order="3" height="330">
+           <orientation>west</orientation>
+           <NEST x_order="3.1" type="sparrow-nest">
+                  <bird name="junior" px_order="3.1" type="sparrow" age="1" />
+                  <bird name="jean" px_order="3.1" type="sparrow" age="28" />
+           </NEST>
+           <FRUIT type="ORANGE" />
+   </branch>
+   <branch x_order="2" height="310">
+           <orientation>north</orientation>
+           <NEST x_order="2.1" type="owl-nest" >
+                  <bird name="owli" px_order="2.1" type="owl" age="3" />
+                  <bird name="huhu" px_order="2.1" type="owl" age="4" />
+                  <bird name="cucko" px_order="2.1" type="cuckoo" age="6"><!-- 7 -->
+                    <weight>411</weight>
+                  </bird>
+                  <bird name="huhu" px_order="2.1" type="owl" age="36" />
+           </NEST>
+           <FRUIT type="ORANGE" />
+   </branch>
+</tree>

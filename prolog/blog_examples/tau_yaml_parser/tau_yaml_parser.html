@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Openapi Yaml Analysis</title>
+</head>
+<body>
+    <h1>Openapi Yaml Analysis</h1>
+    <div id="greet_answers">
+    </div>
+<script src="tau-prolog.js"></script>
+<script src="js-yaml.js"></script>
+<script>
+  window.YamlAnalyzer = {};
+</script>
+<script type="text/prolog" id="code.pl">
+:- use_module(library(js)).
+
+init(YamlDoc) :-
+    prop('window', Window),
+    prop(Window, 'YamlAnalyzer', YamlAnalyzer),
+    apply(YamlAnalyzer, 'parseYaml', [], YamlDoc).
+    %apply('console', 'log', [ YamlDoc ], _).
+
+%
+% YAML QUERY
+%
+
+
+</script>
+<script type="module">
+import { yamlText } from './modules/YamlExample.js';
+
+window.YamlAnalyzer.parseYaml = function() {
+    // Get document, or throw exception on error
+    try {
+        const doc = jsyaml.safeLoad(yamlText());
+        return doc;
+    } catch (e) {
+        console.log(e);
+    }
+};
+
+const session = pl.create(1000)
+const parsed = session.consult("code.pl")
+if (parsed !== true) { console.log(pl.format_answer(parsed)) }
+const query = session.query('init(YamlDoc).')
+if (query !== true) { console.log(pl.format_answer(query)) }
+// session.answer needs a callback function, here we "mute" the output
+// session.answer((a) => {}) 
+// unmuted: 
+session.answer((a) => console.log(pl.format_answer(a)))
+
+//console.log(parseYaml(yamlText()));
+
+</script>
+</body>
+</html>

@@ -16,29 +16,64 @@
 <script type="text/prolog" id="code.pl">
 :- use_module(library(js)).
 
-init(YamlDoc) :-
-    prop('window', Window),
-    prop(Window, 'YamlAnalyzer', YamlAnalyzer),
-    apply(YamlAnalyzer, 'parseYaml', [], YamlDoc).
-    %apply('console', 'log', [ YamlDoc ], _).
+init(OpenApi) :-
+    %prop('window', Window),
+    %prop(Window, 'YamlAnalyzer', YamlAnalyzer),
+    %apply(YamlAnalyzer, 'parseYamlExample', [], YamlDoc),
+    %prop('console', Console),
+    %apply(Console, 'log', [ YamlDoc ], _).
+    yaml_prop('/openapi_examples/YamlExample2.yaml', 'openapi', OpenApi).
 
 %
 % YAML QUERY
 %
+yaml_prop_(PathToYaml, Property, Yr, Obj) :-
+    ajax('get', PathToYaml, YamlText),
+    %DEBUG
+    prop('console', Console),
+    apply(Console, 'log', [ YamlText ], _),
+    prop('window', Window),
+    prop(Window, 'YamlAnalyzer', Yr),
+    apply(Yr, 'parseYamlResource', [ YamlText ], YamlDoc),
+    prop(YamlDoc, Property, Obj).
 
+string_value(Obj, Value) :-
+    (atom(Obj) ->
+         Value = Obj
+    ; Obj \= null ->
+      apply(Obj, 'toString', [], Value)
+    ; Value = null
+    ).
+
+yaml_prop(PathToYaml, Property, Pstr) :-
+    yaml_prop_(PathToYaml, Property, _, Obj),
+    string_value(Obj, Pstr).
 
 </script>
 <script type="module">
 import { yamlText } from './modules/YamlExample.js';
 
-window.YamlAnalyzer.parseYaml = function() {
+window.YamlAnalyzer.parseYamlResource = function(yamlSource) {
+    let stripQuotes = function(s) {
+        let t=s.length;
+        if (s.charAt(0)=='\'') s=s.substring(1,t--);
+        if (s.charAt(--t)=='\'') s=s.substring(0,t);
+        let newS = s.replace(/\\'/g, "'")
+                    .replace(/\\n/g, "\n");
+        return newS;
+    };
     // Get document, or throw exception on error
     try {
-        const doc = jsyaml.safeLoad(yamlText());
+        // variation: safeLoad or load
+        const doc = jsyaml.safeLoad(stripQuotes(yamlSource));
         return doc;
     } catch (e) {
         console.log(e);
     }
+};
+
+window.YamlAnalyzer.parseYamlExample = function() {
+    return window.YamlAnalyzer.parseYamlResource(yamlText());
 };
 
 const session = pl.create(1000)
@@ -51,7 +86,7 @@ if (query !== true) { console.log(pl.format_answer(query)) }
 // unmuted: 
 session.answer((a) => console.log(pl.format_answer(a)))
 
-//console.log(parseYaml(yamlText()));
+//console.log(window.YamlAnalyzer.parseYamlExample());
 
 </script>
 </body>

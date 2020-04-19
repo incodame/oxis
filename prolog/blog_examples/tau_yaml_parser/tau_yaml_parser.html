@@ -15,23 +15,27 @@
 </script>
 <script type="text/prolog" id="code.pl">
 :- use_module(library(js)).
+:- use_module(library(lists)).
 
-init(OpenApi) :-
+init(Key) :-
     %prop('window', Window),
     %prop(Window, 'YamlAnalyzer', YamlAnalyzer),
     %apply(YamlAnalyzer, 'parseYamlExample', [], YamlDoc),
     %prop('console', Console),
     %apply(Console, 'log', [ YamlDoc ], _).
-    yaml_prop('/openapi_examples/YamlExample2.yaml', 'openapi', OpenApi).
+    %yaml_prop('/openapi_examples/YamlExample2.yaml', 'openapi', OpenApi).
+    %yaml_prop_chain('/openapi_examples/YamlExample2.yaml', [ 'info', 'license', 'name' ], License).
+    yaml_sub_prop_key('/openapi_examples/YamlExample2.yaml', [ 'info', 'license' ], Key).
 
 %
-% YAML QUERY
+% MODULE YAML QUERY
 %
+
 yaml_prop_(PathToYaml, Property, Yr, Obj) :-
     ajax('get', PathToYaml, YamlText),
     %DEBUG
-    prop('console', Console),
-    apply(Console, 'log', [ YamlText ], _),
+    %prop('console', Console),
+    %apply(Console, 'log', [ YamlText ], _),
     prop('window', Window),
     prop(Window, 'YamlAnalyzer', Yr),
     apply(Yr, 'parseYamlResource', [ YamlText ], YamlDoc),
@@ -49,11 +53,40 @@ yaml_prop(PathToYaml, Property, Pstr) :-
     yaml_prop_(PathToYaml, Property, _, Obj),
     string_value(Obj, Pstr).
 
+yaml_sub_prop_(Property, Obj0, Obj1) :-
+    prop(Obj0, Property, Obj1).
+
+yaml_prop_chain_o(PathToYaml, [P0|Props], Obj) :-
+    yaml_prop_(PathToYaml, P0, _, Obj0),
+    foldl(prop, Props, Obj0, Obj).
+
+yaml_prop_chain(PathToYaml, [P0|Props], Pstr) :-
+    yaml_prop_(PathToYaml, P0, Yr, Obj0),
+    foldl(prop, Props, Obj0, Obj),
+    string_value(Obj, Pstr).
+
+% key iterators
+
+yaml_prop_key(PathToYaml, Property, Key) :-
+    yaml_prop_(PathToYaml, Property, _, Obj),
+    yaml_sub_prop_(Key, Obj, _).
+
+yaml_sub_prop_key(PathToYaml, [P0|Props], Key) :-
+    yaml_prop_(PathToYaml, P0, _, Obj0),
+    foldl(prop, Props, Obj0, Obj),
+    yaml_sub_prop_(Key, Obj, _).
+
+% array iterator
+
+
+
+
 </script>
 <script type="module">
+import Memoizr from './modules/Memoizer.js';
 import { yamlText } from './modules/YamlExample.js';
 
-window.YamlAnalyzer.parseYamlResource = function(yamlSource) {
+window.YamlAnalyzer.parseYamlResource_ = function(yamlSource) {
     let stripQuotes = function(s) {
         let t=s.length;
         if (s.charAt(0)=='\'') s=s.substring(1,t--);
@@ -72,9 +105,15 @@ window.YamlAnalyzer.parseYamlResource = function(yamlSource) {
     }
 };
 
+window.YamlAnalyzer.parseYamlResource = Memoizr.memo(window.YamlAnalyzer.parseYamlResource_);
+
 window.YamlAnalyzer.parseYamlExample = function() {
     return window.YamlAnalyzer.parseYamlResource(yamlText());
 };
+
+// memoize TauProlog ajax calls
+let ajFunc = pl.module.js.rules["ajax/4"];
+pl.module.js.rules["ajax/4"] = Memoizr.memo3(ajFunc);
 
 const session = pl.create(1000)
 const parsed = session.consult("code.pl")
@@ -84,7 +123,7 @@ if (query !== true) { console.log(pl.format_answer(query)) }
 // session.answer needs a callback function, here we "mute" the output
 // session.answer((a) => {}) 
 // unmuted: 
-session.answer((a) => console.log(pl.format_answer(a)))
+session.answers((a) => console.log(pl.format_answer(a)))
 
 //console.log(window.YamlAnalyzer.parseYamlExample());
 
